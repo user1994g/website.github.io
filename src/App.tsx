@@ -288,7 +288,7 @@ export default function App() {
               playsInline
               className="w-full h-full object-cover"
             >
-              <source src="/videos/Walking Girl.dca083e23d7a563ff57e.mp4" type="video/mp4" />
+              <source src="videos/Walking Girl.dca083e23d7a563ff57e.mp4" type="video/mp4" />
               <source src="https://assets.mixkit.co/videos/preview/mixkit-girl-walking-on-the-beach-at-sunset-1525-large.mp4" type="video/mp4" />
             </video>
           </div>
