@@ -225,21 +225,20 @@ export default function App() {
           {[
             { label: 'Home', page: 'home' as const },
             { label: 'Videos', page: 'videos' as const },
-            { label: 'About', page: 'home' as const },
-            { label: 'Contact', page: 'home' as const },
+            { label: 'Photos', page: 'home' as const },
           ].map((item) => (
             <button
               key={item.label}
               onClick={() => {
                 setCurrentPage(item.page);
-                if (item.label === 'Works') {
+                if (item.label === 'Photos') {
                   setTimeout(() => {
                     const worksSection = document.getElementById('works');
                     if (worksSection) worksSection.scrollIntoView({ behavior: 'smooth' });
                   }, 100);
                 }
               }}
-              className={`text-[11px] uppercase tracking-[0.2em] font-semibold transition-colors duration-300 ${currentPage === item.page && item.label !== 'About' && item.label !== 'Contact'
+              className={`text-[11px] uppercase tracking-[0.2em] font-semibold transition-colors duration-300 ${currentPage === item.page && item.label !== 'Photos'
                 ? 'text-white'
                 : 'text-white/50 hover:text-white'
                 }`}
