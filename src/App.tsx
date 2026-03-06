@@ -80,12 +80,7 @@ export default function App() {
       // Hold the video full screen briefly after the zoom.
       tl.to({}, { duration: 1.2 });
 
-      // Dissolve the text layer progressively so letters do not linger before disappearing.
-      tl.to(textRef.current, {
-        opacity: 0,
-        filter: "blur(10px)",
-        duration: 2.2,
-      }, 1.8);
+      // Keep title layer visible; hide only secondary copy via portfolio-text tween below.
 
       // Shrink video at the end of the first section
       tl.to(videoRef.current, {
@@ -345,14 +340,14 @@ export default function App() {
           {/* 2. The Masking Layer */}
           <div
             ref={textRef}
-            className="absolute inset-0 w-full h-full bg-black flex flex-col items-center justify-center pointer-events-none mix-blend-multiply z-10 origin-[38%_45%] will-change-transform"
+            className="absolute inset-0 w-full h-full flex flex-col items-center justify-center pointer-events-none z-10 origin-[38%_45%] will-change-transform"
           >
-            <div className="w-full max-w-[1400px] flex flex-col items-center bg-black">
+            <div className="w-full max-w-[1400px] flex flex-col items-center">
               <motion.h1
                 initial={{ opacity: 0, scale: 1.1, skewX: -10 }}
                 animate={{ opacity: 1, scale: 1, skewX: -10 }}
                 transition={{ duration: 1.2, ease: [0.16, 1, 0.3, 1] }}
-                className="font-display text-[18vw] leading-[0.8] uppercase tracking-tighter text-white text-center"
+                className="font-display text-[18vw] leading-[0.8] uppercase tracking-tighter text-white text-center [text-shadow:0_2px_24px_rgba(0,0,0,0.85)]"
               >
                 Jack Miller
               </motion.h1>
@@ -362,7 +357,7 @@ export default function App() {
                   initial={{ opacity: 0, y: 100 }}
                   animate={{ opacity: 1, y: 0 }}
                   transition={{ duration: 1, delay: 0.4, ease: [0.16, 1, 0.3, 1] }}
-                  className="font-display text-[12vw] leading-[0.8] uppercase tracking-tighter text-white text-center"
+                  className="font-display text-[12vw] leading-[0.8] uppercase tracking-tighter text-white text-center [text-shadow:0_2px_24px_rgba(0,0,0,0.85)]"
                 >
                   Portfolio
                 </motion.h2>
