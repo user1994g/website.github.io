@@ -69,15 +69,7 @@ export default function App() {
         }
       });
 
-      // Responsive zoom parameters tuned for smoother compositing.
-      tl.to(textRef.current, {
-        scale: isDesktop ? 40 : 240,
-        x: isDesktop ? "18%" : "35%",
-        y: isDesktop ? "8%" : "0%",
-        duration: 5,
-      }, 0);
-
-      // Hold the video full screen briefly after the zoom.
+      // Keep hero title statically visible for maximum reliability across clients.
       tl.to({}, { duration: 1.2 });
 
       // Keep title layer visible; hide only secondary copy via portfolio-text tween below.
@@ -343,24 +335,18 @@ export default function App() {
             className="absolute inset-0 w-full h-full flex flex-col items-center justify-center pointer-events-none z-10 origin-[38%_45%] will-change-transform"
           >
             <div className="w-full max-w-[1400px] flex flex-col items-center">
-              <motion.h1
-                initial={{ opacity: 0, scale: 1.1, skewX: -10 }}
-                animate={{ opacity: 1, scale: 1, skewX: -10 }}
-                transition={{ duration: 1.2, ease: [0.16, 1, 0.3, 1] }}
+              <h1
                 className="font-display text-[18vw] leading-[0.8] uppercase tracking-tighter text-white text-center [text-shadow:0_2px_24px_rgba(0,0,0,0.85)]"
               >
                 Jack Miller
-              </motion.h1>
+              </h1>
 
               <div className="portfolio-text mt-[10px]">
-                <motion.h2
-                  initial={{ opacity: 0, y: 100 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  transition={{ duration: 1, delay: 0.4, ease: [0.16, 1, 0.3, 1] }}
+                <h2
                   className="font-display text-[12vw] leading-[0.8] uppercase tracking-tighter text-white text-center [text-shadow:0_2px_24px_rgba(0,0,0,0.85)]"
                 >
                   Portfolio
-                </motion.h2>
+                </h2>
               </div>
             </div>
           </div>
