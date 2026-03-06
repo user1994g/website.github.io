@@ -1,6 +1,6 @@
 import { motion, AnimatePresence } from "motion/react";
 import VideoPage from "./VideoPage";
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useLayoutEffect, useRef, useState } from "react";
 import gsap from "gsap";
 import { ScrollTrigger } from "gsap/ScrollTrigger";
 import { X, Bookmark, Share2 } from "lucide-react";
@@ -8,6 +8,7 @@ import { X, Bookmark, Share2 } from "lucide-react";
 gsap.registerPlugin(ScrollTrigger);
 
 export default function App() {
+  const localVideoSrc = `${import.meta.env.BASE_URL}videos/Walking Girl.dca083e23d7a563ff57e.mp4`;
   const [selectedImage, setSelectedImage] = useState<any>(null);
   const [currentPage, setCurrentPage] = useState<'home' | 'videos'>('home');
   const [collected, setCollected] = useState<Set<number>>(new Set());
@@ -28,8 +29,10 @@ export default function App() {
   const sliderRef = useRef<HTMLDivElement>(null);
   const horizontalSectionRef = useRef<HTMLDivElement>(null);
 
-  useEffect(() => {
+  useLayoutEffect(() => {
     const mm = gsap.matchMedia();
+    const reduceMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+    if (reduceMotion) return;
 
     mm.add({
       // Desktop
@@ -39,55 +42,56 @@ export default function App() {
     }, (context) => {
       const { isDesktop } = context.conditions as { isDesktop: boolean };
 
+      gsap.set([textRef.current, videoRef.current, sliderRef.current], { force3D: true });
+
       const tl = gsap.timeline({
+        defaults: { ease: "none" },
         scrollTrigger: {
           trigger: "main",
           start: "top top",
-          end: isDesktop ? "+=250%" : "+=300%", // Much more scrolling for a slower feel
-          scrub: 1.5, // Slightly more scrub for smoothness
+          end: isDesktop ? "+=340%" : "+=380%",
+          scrub: 2.4,
           pin: true,
           anticipatePin: 1,
+          invalidateOnRefresh: true,
+          fastScrollEnd: false,
         }
       });
 
-      // Responsive zoom parameters - Much slower zoom
+      // Responsive zoom parameters tuned for smoother compositing.
       tl.to(textRef.current, {
-        scale: isDesktop ? 65 : 400,
+        scale: isDesktop ? 40 : 240,
         x: isDesktop ? "18%" : "35%",
         y: isDesktop ? "8%" : "0%",
-        ease: "power1.inOut",
-        duration: 5, // Much longer duration
+        duration: 5,
       }, 0);
 
-      // Hold the video full screen for a while after the zoom
-      tl.to({}, { duration: 3 });
+      // Hold the video full screen briefly after the zoom.
+      tl.to({}, { duration: 1.2 });
 
-      // Final reveal: Fade out the entire mask layer
+      // Dissolve the text layer progressively so letters do not linger before disappearing.
       tl.to(textRef.current, {
         opacity: 0,
-        duration: 1.5, // Slower fade
-        ease: "power2.inOut"
-      });
+        filter: "blur(10px)",
+        duration: 2.2,
+      }, 1.8);
 
       // Shrink video at the end of the first section
       tl.to(videoRef.current, {
         scale: isDesktop ? 0.8 : 0.85,
         borderRadius: isDesktop ? "100px" : "50px",
-        duration: 2, // Slower shrink
-        ease: "power2.inOut"
+        duration: 1.8,
       });
 
       tl.to(".portfolio-text", {
         opacity: 0,
         y: isDesktop ? -60 : -30,
-        duration: 5, // Extremely slow fade
-        ease: "power2.inOut"
+        duration: 3.5,
       }, 0.2);
 
       tl.to(footerRef.current, {
         opacity: 0,
         duration: 1.2,
-        ease: "power2.inOut"
       }, 0.2);
 
       // Horizontal Scroll Section - Circular Carousel Effect
@@ -96,13 +100,15 @@ export default function App() {
         const items = slider.querySelectorAll(".slider-item");
 
         const horizontalTl = gsap.timeline({
+          defaults: { ease: "none" },
           scrollTrigger: {
             trigger: horizontalSectionRef.current,
             start: "top top",
-            end: () => `+=${slider.scrollWidth + 200}`, // Even less extra scroll
+            end: () => `+=${slider.scrollWidth + 120}`,
             pin: true,
-            scrub: 1,
+            scrub: true,
             invalidateOnRefresh: true,
+            fastScrollEnd: true,
           }
         });
 
@@ -119,61 +125,21 @@ export default function App() {
           ease: "none",
         });
 
-        // 3D Carousel Effect for each item
+        // 3D carousel effect tuned to reduce per-frame transform cost.
         items.forEach((item) => {
-          const img = item.querySelector("img");
-
-          // Set initial 3D properties
-          gsap.set(item, { transformPerspective: 1000 });
-
-          // The 3D movement: Rotation Y and Z depth
+          gsap.set(item, { transformPerspective: 800, force3D: true });
           gsap.fromTo(item,
             {
-              rotationY: 45,
-              z: -200,
-              scale: 0.8,
-              opacity: 1, // Full opacity for maximum visibility
-              x: 100
+              rotationY: 24,
+              z: -100,
+              scale: 0.92,
+              x: 60
             },
             {
-              rotationY: -45,
-              z: -200,
-              scale: 0.8,
-              opacity: 1, // Full opacity for maximum visibility
-              x: -100,
-              scrollTrigger: {
-                trigger: item,
-                containerAnimation: horizontalTl,
-                start: "left right",
-                end: "right left",
-                scrub: true,
-              }
-            }
-          );
-
-          // Peak state (Center of the screen) - Focus and bring forward
-          gsap.to(item, {
-            rotationY: 0,
-            z: 100,
-            scale: 1.15,
-            opacity: 1,
-            x: 0,
-            scrollTrigger: {
-              trigger: item,
-              containerAnimation: horizontalTl,
-              start: "left center+=35%",
-              end: "center center",
-              scrub: true,
-            }
-          });
-
-          // Parallax on the image inside the frame
-          gsap.fromTo(img,
-            { scale: 1.5, x: "-20%" },
-            {
-              scale: 1.5,
-              x: "20%",
-              ease: "none",
+              rotationY: -24,
+              z: -100,
+              scale: 0.92,
+              x: -60,
               scrollTrigger: {
                 trigger: item,
                 containerAnimation: horizontalTl,
@@ -211,6 +177,77 @@ export default function App() {
     }, 500);
     return () => clearTimeout(timer);
   }, []);
+
+  useEffect(() => {
+    if (currentPage === "videos") {
+      const prevOverflow = document.body.style.overflow;
+      document.body.style.overflow = "hidden";
+      return () => {
+        document.body.style.overflow = prevOverflow;
+      };
+    }
+    return;
+  }, [currentPage]);
+
+  useEffect(() => {
+    if (currentPage !== "home") return;
+
+    // Ensure hero state is consistent when returning from overlays/pages.
+    window.scrollTo({ top: 0, left: 0, behavior: "auto" });
+    gsap.set(textRef.current, { clearProps: "transform,opacity,filter" });
+    gsap.set(videoRef.current, { clearProps: "transform,borderRadius" });
+    gsap.set(".portfolio-text", { clearProps: "transform,opacity" });
+    gsap.set(footerRef.current, { clearProps: "opacity" });
+    requestAnimationFrame(() => ScrollTrigger.refresh());
+  }, [currentPage]);
+
+  useEffect(() => {
+    const MAX_STEP = 46;
+    const SPEED_MULTIPLIER = 0.85;
+
+    const canScrollElement = (el: HTMLElement, deltaY: number) => {
+      const canScroll = el.scrollHeight > el.clientHeight;
+      if (!canScroll) return false;
+      if (deltaY > 0) return el.scrollTop + el.clientHeight < el.scrollHeight - 1;
+      if (deltaY < 0) return el.scrollTop > 0;
+      return false;
+    };
+
+    const findScrollableAncestor = (target: EventTarget | null, deltaY: number) => {
+      let node = target instanceof HTMLElement ? target : null;
+      while (node && node !== document.body) {
+        const style = window.getComputedStyle(node);
+        const overflowY = style.overflowY;
+        const isScrollable = overflowY === "auto" || overflowY === "scroll";
+        if (isScrollable && canScrollElement(node, deltaY)) return node;
+        node = node.parentElement;
+      }
+      return null;
+    };
+
+    const normalizeDelta = (event: WheelEvent) => {
+      // deltaMode: 0=pixel, 1=line, 2=page
+      if (event.deltaMode === 1) return event.deltaY * 16;
+      if (event.deltaMode === 2) return event.deltaY * window.innerHeight;
+      return event.deltaY;
+    };
+
+    const onWheel = (event: WheelEvent) => {
+      if (currentPage !== "home") return;
+      if (event.ctrlKey || event.metaKey) return;
+
+      const rawDelta = normalizeDelta(event);
+      const scrollableAncestor = findScrollableAncestor(event.target, rawDelta);
+      if (scrollableAncestor) return;
+
+      event.preventDefault();
+      const capped = Math.max(-MAX_STEP, Math.min(MAX_STEP, rawDelta * SPEED_MULTIPLIER));
+      window.scrollBy({ top: capped, left: 0, behavior: "auto" });
+    };
+
+    window.addEventListener("wheel", onWheel, { passive: false });
+    return () => window.removeEventListener("wheel", onWheel);
+  }, [currentPage]);
 
   return (
     <div className="relative w-full bg-black min-h-screen">
@@ -279,7 +316,7 @@ export default function App() {
       >
         <main className="h-screen w-full bg-black flex flex-col items-center justify-center relative overflow-hidden">
           {/* 1. The Video Layer */}
-          <div ref={videoRef} className="absolute inset-0 w-full h-full z-0 overflow-hidden">
+          <div ref={videoRef} className="absolute inset-0 w-full h-full z-0 overflow-hidden will-change-transform">
             <video
               autoPlay
               muted
@@ -287,7 +324,7 @@ export default function App() {
               playsInline
               className="w-full h-full object-cover"
             >
-              <source src="videos/Walking Girl.dca083e23d7a563ff57e.mp4" type="video/mp4" />
+              <source src={localVideoSrc} type="video/mp4" />
               <source src="https://assets.mixkit.co/videos/preview/mixkit-girl-walking-on-the-beach-at-sunset-1525-large.mp4" type="video/mp4" />
             </video>
           </div>
@@ -295,7 +332,7 @@ export default function App() {
           {/* 2. The Masking Layer */}
           <div
             ref={textRef}
-            className="absolute inset-0 w-full h-full bg-black flex flex-col items-center justify-center pointer-events-none mix-blend-multiply z-10 origin-[38%_45%]"
+            className="absolute inset-0 w-full h-full bg-black flex flex-col items-center justify-center pointer-events-none mix-blend-multiply z-10 origin-[38%_45%] will-change-transform"
           >
             <div className="w-full max-w-[1400px] flex flex-col items-center bg-black">
               <motion.h1
@@ -304,7 +341,7 @@ export default function App() {
                 transition={{ duration: 1.2, ease: [0.16, 1, 0.3, 1] }}
                 className="font-display text-[18vw] leading-[0.8] uppercase tracking-tighter text-white text-center"
               >
-                JackMiller
+                Jack Miller
               </motion.h1>
 
               <div className="portfolio-text mt-[10px]">
@@ -380,7 +417,7 @@ export default function App() {
           <div className="flex-1 relative flex items-center overflow-visible perspective-1000">
             <div
               ref={sliderRef}
-              className="flex gap-16 md:gap-32 px-[15vw] md:px-[20vw] items-center"
+              className="flex gap-16 md:gap-32 px-[15vw] md:px-[20vw] items-center will-change-transform"
               style={{ width: "max-content", height: "65vh", transformStyle: "preserve-3d" }}
             >
               {[
@@ -397,13 +434,13 @@ export default function App() {
                     e.stopPropagation();
                     setSelectedImage(item);
                   }}
-                  className="slider-item group relative overflow-hidden rounded-3xl bg-zinc-900 shrink-0 aspect-[4/5] h-full cursor-pointer"
+                  className="slider-item group relative overflow-hidden rounded-3xl bg-zinc-900 shrink-0 aspect-[4/5] h-full cursor-pointer will-change-transform"
                   style={{ pointerEvents: 'auto' }}
                 >
                   <img
                     src={`https://picsum.photos/seed/${item.img}/1200/1500`}
                     alt={item.title}
-                    className="w-full h-full object-cover scale-125 transition-transform duration-1000 group-hover:scale-[1.3] pointer-events-none"
+                    className="w-full h-full object-cover scale-125 transition-transform duration-1000 group-hover:scale-[1.3] pointer-events-none will-change-transform"
                     referrerPolicy="no-referrer"
                   />
                   <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500 flex flex-col justify-end p-8">

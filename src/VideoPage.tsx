@@ -2,6 +2,8 @@ import { motion, AnimatePresence } from "motion/react";
 import React, { useRef, useState } from "react";
 import { X, Play, Volume2, VolumeX } from "lucide-react";
 
+const localVideoSrc = `${import.meta.env.BASE_URL}videos/Walking Girl.dca083e23d7a563ff57e.mp4`;
+
 const videos = [
     {
         id: 1,
@@ -12,7 +14,7 @@ const videos = [
         year: "2025",
         description:
             "A quiet study in solitary motion — capturing stillness in movement through dusk-lit atmosphere.",
-        src: "videos/Walking Girl.dca083e23d7a563ff57e.mp4",
+        src: localVideoSrc,
         thumb: null,
         local: true,
     },
@@ -271,7 +273,7 @@ export default function VideoPage() {
                     playsInline
                     className="absolute inset-0 w-full h-full object-cover opacity-30"
                 >
-                    <source src="videos/Walking Girl.dca083e23d7a563ff57e.mp4" type="video/mp4" />
+                    <source src={localVideoSrc} type="video/mp4" />
                     <source src="https://assets.mixkit.co/videos/preview/mixkit-girl-walking-on-the-beach-at-sunset-1525-large.mp4" type="video/mp4" />
                 </video>
                 {/* Gradient overlay */}
