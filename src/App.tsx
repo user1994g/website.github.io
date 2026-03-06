@@ -32,6 +32,11 @@ export default function App() {
   const horizontalSectionRef = useRef<HTMLDivElement>(null);
 
   useLayoutEffect(() => {
+    // Always start at top on first paint so hero intro state is deterministic.
+    window.scrollTo({ top: 0, left: 0, behavior: "auto" });
+  }, []);
+
+  useLayoutEffect(() => {
     const mm = gsap.matchMedia();
     const reduceMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
     if (reduceMotion) return;
@@ -335,27 +340,21 @@ export default function App() {
           {/* 2. The Masking Layer */}
           <div
             ref={textRef}
-            className="absolute inset-0 w-full h-full bg-black/20 flex flex-col items-center justify-center pointer-events-none z-10 origin-[38%_45%] will-change-transform"
+            className="absolute inset-0 w-full h-full flex flex-col items-center justify-center pointer-events-none z-10 origin-[38%_45%] will-change-transform"
+            style={{ opacity: 1, filter: "none" }}
           >
-            <div className="w-full max-w-[1400px] flex flex-col items-center bg-black">
-              <motion.h1
-                initial={{ opacity: 0, scale: 1.1, skewX: -10 }}
-                animate={{ opacity: 1, scale: 1, skewX: -10 }}
-                transition={{ duration: 1.2, ease: [0.16, 1, 0.3, 1] }}
-                className="font-display text-[18vw] leading-[0.8] uppercase tracking-tighter text-white text-center"
+            <div className="w-full max-w-[1400px] flex flex-col items-center">
+              <h1
+                className="font-display text-[18vw] leading-[0.8] uppercase tracking-tighter text-white text-center [text-shadow:0_2px_24px_rgba(0,0,0,0.75)]"
+                style={{ transform: "skewX(-10deg)" }}
               >
                 Jack Miller
-              </motion.h1>
+              </h1>
 
               <div className="portfolio-text mt-[10px]">
-                <motion.h2
-                  initial={{ opacity: 0, y: 100 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  transition={{ duration: 1, delay: 0.4, ease: [0.16, 1, 0.3, 1] }}
-                  className="font-display text-[12vw] leading-[0.8] uppercase tracking-tighter text-white text-center"
-                >
+                <h2 className="font-display text-[12vw] leading-[0.8] uppercase tracking-tighter text-white text-center [text-shadow:0_2px_24px_rgba(0,0,0,0.75)]">
                   Portfolio
-                </motion.h2>
+                </h2>
               </div>
             </div>
           </div>
