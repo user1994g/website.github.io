@@ -32,7 +32,9 @@ export default function App() {
   const horizontalSectionRef = useRef<HTMLDivElement>(null);
 
   useLayoutEffect(() => {
-    // Always start at top on first paint so hero intro state is deterministic.
+    // Always start at top with fresh scroll memory so hero intro state is deterministic.
+    if ("scrollRestoration" in history) history.scrollRestoration = "manual";
+    ScrollTrigger.clearScrollMemory();
     window.scrollTo({ top: 0, left: 0, behavior: "auto" });
   }, []);
 
@@ -50,6 +52,8 @@ export default function App() {
       const { isDesktop } = context.conditions as { isDesktop: boolean };
 
       gsap.set([textRef.current, videoRef.current, sliderRef.current], { force3D: true });
+      gsap.set(textRef.current, { opacity: 1, filter: "none", scale: 1, x: 0, y: 0 });
+      gsap.set(videoRef.current, { scale: 1, borderRadius: 0 });
 
       const tl = gsap.timeline({
         defaults: { ease: "none" },
@@ -200,6 +204,7 @@ export default function App() {
     if (currentPage !== "home") return;
 
     // Ensure hero state is consistent when returning from overlays/pages.
+    ScrollTrigger.clearScrollMemory();
     window.scrollTo({ top: 0, left: 0, behavior: "auto" });
     gsap.set(textRef.current, { clearProps: "transform,opacity,filter" });
     gsap.set(videoRef.current, { clearProps: "transform,borderRadius" });
@@ -340,21 +345,27 @@ export default function App() {
           {/* 2. The Masking Layer */}
           <div
             ref={textRef}
-            className="absolute inset-0 w-full h-full flex flex-col items-center justify-center pointer-events-none z-10 origin-[38%_45%] will-change-transform"
-            style={{ opacity: 1, filter: "none" }}
+            className="absolute inset-0 w-full h-full bg-black flex flex-col items-center justify-center pointer-events-none mix-blend-multiply z-10 origin-[38%_45%] will-change-transform"
           >
-            <div className="w-full max-w-[1400px] flex flex-col items-center">
-              <h1
-                className="font-display text-[18vw] leading-[0.8] uppercase tracking-tighter text-white text-center [text-shadow:0_2px_24px_rgba(0,0,0,0.75)]"
-                style={{ transform: "skewX(-10deg)" }}
+            <div className="w-full max-w-[1400px] flex flex-col items-center bg-black">
+              <motion.h1
+                initial={{ opacity: 0, scale: 1.1, skewX: -10 }}
+                animate={{ opacity: 1, scale: 1, skewX: -10 }}
+                transition={{ duration: 1.2, ease: [0.16, 1, 0.3, 1] }}
+                className="font-display text-[18vw] leading-[0.8] uppercase tracking-tighter text-white text-center"
               >
                 Jack Miller
-              </h1>
+              </motion.h1>
 
               <div className="portfolio-text mt-[10px]">
-                <h2 className="font-display text-[12vw] leading-[0.8] uppercase tracking-tighter text-white text-center [text-shadow:0_2px_24px_rgba(0,0,0,0.75)]">
+                <motion.h2
+                  initial={{ opacity: 0, y: 100 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  transition={{ duration: 1, delay: 0.4, ease: [0.16, 1, 0.3, 1] }}
+                  className="font-display text-[12vw] leading-[0.8] uppercase tracking-tighter text-white text-center"
+                >
                   Portfolio
-                </h2>
+                </motion.h2>
               </div>
             </div>
           </div>
