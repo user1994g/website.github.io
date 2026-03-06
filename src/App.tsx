@@ -9,9 +9,11 @@ gsap.registerPlugin(ScrollTrigger);
 
 export default function App() {
   const localVideoSrc = `${import.meta.env.BASE_URL}videos/Walking Girl.dca083e23d7a563ff57e.mp4`;
+  const fallbackVideoSrc = "https://assets.mixkit.co/videos/preview/mixkit-girl-walking-on-the-beach-at-sunset-1525-large.mp4";
   const [selectedImage, setSelectedImage] = useState<any>(null);
   const [currentPage, setCurrentPage] = useState<'home' | 'videos'>('home');
   const [collected, setCollected] = useState<Set<number>>(new Set());
+  const [heroVideoSrc, setHeroVideoSrc] = useState(localVideoSrc);
 
   const toggleCollect = (id: number) => {
     setCollected(prev => {
@@ -318,21 +320,22 @@ export default function App() {
           {/* 1. The Video Layer */}
           <div ref={videoRef} className="absolute inset-0 w-full h-full z-0 overflow-hidden will-change-transform">
             <video
+              src={heroVideoSrc}
               autoPlay
               muted
               loop
               playsInline
+              onError={() => {
+                if (heroVideoSrc !== fallbackVideoSrc) setHeroVideoSrc(fallbackVideoSrc);
+              }}
               className="w-full h-full object-cover"
-            >
-              <source src={localVideoSrc} type="video/mp4" />
-              <source src="https://assets.mixkit.co/videos/preview/mixkit-girl-walking-on-the-beach-at-sunset-1525-large.mp4" type="video/mp4" />
-            </video>
+            />
           </div>
 
           {/* 2. The Masking Layer */}
           <div
             ref={textRef}
-            className="absolute inset-0 w-full h-full bg-black flex flex-col items-center justify-center pointer-events-none mix-blend-multiply z-10 origin-[38%_45%] will-change-transform"
+            className="absolute inset-0 w-full h-full bg-black/20 flex flex-col items-center justify-center pointer-events-none z-10 origin-[38%_45%] will-change-transform"
           >
             <div className="w-full max-w-[1400px] flex flex-col items-center bg-black">
               <motion.h1

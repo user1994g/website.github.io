@@ -3,6 +3,7 @@ import React, { useRef, useState } from "react";
 import { X, Play, Volume2, VolumeX } from "lucide-react";
 
 const localVideoSrc = `${import.meta.env.BASE_URL}videos/Walking Girl.dca083e23d7a563ff57e.mp4`;
+const fallbackVideoSrc = "https://assets.mixkit.co/videos/preview/mixkit-girl-walking-on-the-beach-at-sunset-1525-large.mp4";
 
 const videos = [
     {
@@ -260,6 +261,7 @@ function VideoLightbox({ video, onClose }: VideoLightboxProps) {
 
 export default function VideoPage() {
     const [selectedVideo, setSelectedVideo] = useState<(typeof videos)[0] | null>(null);
+    const [heroVideoSrc, setHeroVideoSrc] = useState(localVideoSrc);
 
     return (
         <div className="min-h-screen bg-black">
@@ -267,15 +269,16 @@ export default function VideoPage() {
             <div className="relative h-[38vh] overflow-hidden flex items-end pb-16 px-6 md:px-12">
                 {/* Background video (looping, muted) */}
                 <video
+                    src={heroVideoSrc}
                     autoPlay
                     muted
                     loop
                     playsInline
+                    onError={() => {
+                        if (heroVideoSrc !== fallbackVideoSrc) setHeroVideoSrc(fallbackVideoSrc);
+                    }}
                     className="absolute inset-0 w-full h-full object-cover opacity-30"
-                >
-                    <source src={localVideoSrc} type="video/mp4" />
-                    <source src="https://assets.mixkit.co/videos/preview/mixkit-girl-walking-on-the-beach-at-sunset-1525-large.mp4" type="video/mp4" />
-                </video>
+                />
                 {/* Gradient overlay */}
                 <div className="absolute inset-0 bg-gradient-to-b from-black/60 via-black/30 to-black" />
 
